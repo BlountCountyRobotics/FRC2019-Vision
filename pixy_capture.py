@@ -1,9 +1,9 @@
 import cv2
 import numpy
-from pixy import *
+import pixy
 from ctypes import *
 
-#vectors = VectorArray(1)
+vectors = VectorArray(1)
 
 def initialize():
     pixy.init()
@@ -19,4 +19,10 @@ def get_pixy_image():
     cv2.waitKey(0)
 
 if __name__ == "__main__":
-    get_pixy_image()
+    initialize()
+    cv2.namedWindow("image", cv2.WINDOW_NORMAL)
+    while True:
+        cv2.imshow("image", get_pixy_image())
+        if cv2.waitKey(1) & 0xFF == ord('q')
+            break
+    cv2.destroyAllWindows()
