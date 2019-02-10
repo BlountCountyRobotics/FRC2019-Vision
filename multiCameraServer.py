@@ -11,7 +11,10 @@ import time
 import sys
 
 from cscore import CameraServer, VideoSource, UsbCamera, MjpegServer
+import cscore
 from networktables import NetworkTablesInstance
+import pixy_capture
+
 
 #   JSON format:
 #   {
@@ -53,6 +56,7 @@ class CameraConfig: pass
 team = None
 server = False
 cameraConfigs = []
+pixy_source = None
 
 """Report parse error."""
 def parseError(str):
@@ -143,8 +147,9 @@ def startCamera(config):
     camera = None
     server = None
     if config.pixy:
-        camera = CvSource("Pixy", None)
-        server = inst.startAutomaticCapture(camera = camera, return_server = True)
+        global pixy_source
+        pixy_source = CvSource("Pixy", cscore.VideoMode.kGray, 51, 51, 60)
+        server = inst.startAutomaticCapture(camera = pixy_source, return_server = True)
 
         camera.setConfigJson(json.dumps(config.config))
         camera.setConnectionStrategy(VideoSource.ConnectionStrategy.kKeepOpen)
@@ -182,6 +187,12 @@ if __name__ == "__main__":
     for cameraConfig in cameraConfigs:
         cameras.append(startCamera(cameraConfig))
 
+    pixy_capture.initialize()
     # loop forever
     while True:
-        time.sleep(10)
+        pixy_source.put_image(pixy_capture.get_pixy_image())
+        ntinst.putNumber("y0",pixy_capture.vectors[0].m_y0)
+        ntinst.putNumber("x0",pixy_capture.vectors[0].m_x0)
+        ntinst.putNumber("y1",pixy_capture.vectors[0].m_y1)
+        ntinst.putNumber("x1",pixy_capture.vectors[0].m_x1)
+        time.sleep(.01)

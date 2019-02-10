@@ -15,8 +15,7 @@ def get_pixy_image():
 
     image = numpy.zeros((480, 680, 1), dtype=numpy.uint8)
     cv2.line(image, (vectors[0].m_y0,vectors[0].m_x0), (vectors[0].m_y1, vectors[0].m_x1), 256, thickness=5)
-    cv2.imshow("image", image)
-    cv2.waitKey(0)
+    return image
 
 if __name__ == "__main__":
     initialize()
