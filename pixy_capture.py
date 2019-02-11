@@ -17,6 +17,9 @@ def get_pixy_image():
     cv2.line(image, (vectors[0].m_y0,vectors[0].m_x0), (vectors[0].m_y1, vectors[0].m_x1), 256, thickness=5)
     return image
 
+def get_vector():
+    return vectors[0]
+
 if __name__ == "__main__":
     initialize()
     cv2.namedWindow("image", cv2.WINDOW_NORMAL)
