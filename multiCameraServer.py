@@ -175,6 +175,10 @@ if __name__ == "__main__":
 
     # start NetworkTables
     ntinst = NetworkTablesInstance.getDefault()
+    NetworkTables.initialize(server='roborio-4504-frc.local')
+    sd = NetworkTables.getTable('SmartDashboard')
+
+
     if server:
         print("Setting up NetworkTables server")
         ntinst.startServer()
@@ -191,8 +195,8 @@ if __name__ == "__main__":
     # loop forever
     while True:
         pixy_source.put_image(pixy_capture.get_pixy_image())
-        ntinst.putNumber("y0",pixy_capture.vectors[0].m_y0)
-        ntinst.putNumber("x0",pixy_capture.vectors[0].m_x0)
-        ntinst.putNumber("y1",pixy_capture.vectors[0].m_y1)
-        ntinst.putNumber("x1",pixy_capture.vectors[0].m_x1)
+        sd.putNumber("y0",pixy_capture.vectors[0].m_y0)
+        sd.putNumber("x0",pixy_capture.vectors[0].m_x0)
+        sd.putNumber("y1",pixy_capture.vectors[0].m_y1)
+        sd.putNumber("x1",pixy_capture.vectors[0].m_x1)
         time.sleep(.01)
