@@ -53,7 +53,7 @@ configFile = "/boot/frc.json"
 
 class CameraConfig: pass
 
-team = None
+team = 4504
 server = False
 cameraConfigs = []
 pixy_source = None
