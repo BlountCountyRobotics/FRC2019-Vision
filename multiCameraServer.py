@@ -148,22 +148,19 @@ def startCamera(config):
     server = None
     print(config.pixy)
     if config.pixy:
-        print("PENIS1")
         global pixy_source
-        pixy_source = CvSource("Pixy", cscore.VideoMode.PixelFormat.kGray, 51, 51, 60)
-        server = inst.startAutomaticCapture(camera = pixy_source, return_server = True)
-
+        pixy_source = inst.putVideo("Pixy", 51, 51)
+        
         camera.setConfigJson(json.dumps(config.config))
         camera.setConnectionStrategy(VideoSource.ConnectionStrategy.kKeepOpen)
     else:
-        print("PENIS2")
         camera = UsbCamera(config.name, config.path)
         server = inst.startAutomaticCapture(camera=camera, return_server=True)
 
         camera.setConfigJson(json.dumps(config.config))
         camera.setConnectionStrategy(VideoSource.ConnectionStrategy.kKeepOpen)
 
-    if config.streamConfig is not None:
+    if config.streamConfig is not None and config.pixy is False:
         server.setConfigJson(json.dumps(config.streamConfig))
 
     return camera
