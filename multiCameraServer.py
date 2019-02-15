@@ -10,7 +10,7 @@ import json
 import time
 import sys
 
-from cscore import CameraServer, VideoSource, UsbCamera, MjpegServer
+from cscore import CameraServer, VideoSource, UsbCamera, MjpegServer, CvSource
 import cscore
 from networktables import NetworkTablesInstance
 import pixy_capture
@@ -81,7 +81,7 @@ def readCameraConfig(config):
         return False
 
     try:
-        cam.pixy = config["properties"]["Pixy"]
+        cam.pixy = config["pixy"]
     except KeyError:
         parseError("camera '{}': could not read pixy".format(came.name))
 
@@ -146,14 +146,17 @@ def startCamera(config):
     inst = CameraServer.getInstance()
     camera = None
     server = None
+    print(config.pixy)
     if config.pixy:
+        print("PENIS1")
         global pixy_source
-        pixy_source = CvSource("Pixy", cscore.VideoMode.kGray, 51, 51, 60)
+        pixy_source = CvSource("Pixy", cscore.VideoMode.PixelFormat.kGray, 51, 51, 60)
         server = inst.startAutomaticCapture(camera = pixy_source, return_server = True)
 
         camera.setConfigJson(json.dumps(config.config))
         camera.setConnectionStrategy(VideoSource.ConnectionStrategy.kKeepOpen)
     else:
+        print("PENIS2")
         camera = UsbCamera(config.name, config.path)
         server = inst.startAutomaticCapture(camera=camera, return_server=True)
 
@@ -175,8 +178,8 @@ if __name__ == "__main__":
 
     # start NetworkTables
     ntinst = NetworkTablesInstance.getDefault()
-    NetworkTables.initialize(server='roborio-4504-frc.local')
-    sd = NetworkTables.getTable('SmartDashboard')
+    #NetworkTables.initialize(server='roborio-4504-frc.local')
+    #sd = NetworkTables.getTable('SmartDashboard')
 
 
     if server:
@@ -195,8 +198,8 @@ if __name__ == "__main__":
     # loop forever
     while True:
         pixy_source.put_image(pixy_capture.get_pixy_image())
-        sd.putNumber("y0",pixy_capture.vectors[0].m_y0)
-        sd.putNumber("x0",pixy_capture.vectors[0].m_x0)
-        sd.putNumber("y1",pixy_capture.vectors[0].m_y1)
-        sd.putNumber("x1",pixy_capture.vectors[0].m_x1)
+    #    sd.putNumber("y0",pixy_capture.vectors[0].m_y0)
+    #    sd.putNumber("x0",pixy_capture.vectors[0].m_x0)
+    #    sd.putNumber("y1",pixy_capture.vectors[0].m_y1)
+    #    sd.putNumber("x1",pixy_capture.vectors[0].m_x1)
         time.sleep(.01)
