@@ -12,8 +12,10 @@ import sys
 
 from cscore import CameraServer, VideoSource, UsbCamera, MjpegServer, CvSource
 import cscore
+import numpy
 from networktables import NetworkTablesInstance
-import pixy_capture
+import pixy
+import cv2
 
 
 #   JSON format:
@@ -57,6 +59,8 @@ team = 4504
 server = False
 cameraConfigs = []
 pixy_source = None
+vectors = pixy.VectorArray(1)
+
 
 """Report parse error."""
 def parseError(str):
@@ -150,9 +154,9 @@ def startCamera(config):
     if config.pixy:
         global pixy_source
         pixy_source = inst.putVideo("Pixy", 51, 51)
-        
-        camera.setConfigJson(json.dumps(config.config))
-        camera.setConnectionStrategy(VideoSource.ConnectionStrategy.kKeepOpen)
+
+        #camera.setConfigJson(json.dumps(config.config))
+        #camera.setConnectionStrategy(VideoSource.ConnectionStrategy.kKeepOpen)
     else:
         camera = UsbCamera(config.name, config.path)
         server = inst.startAutomaticCapture(camera=camera, return_server=True)
@@ -165,7 +169,20 @@ def startCamera(config):
 
     return camera
 
+def initialize():
+    pixy.init()
+    #pixy.change_prog("line")
+
+def get_pixy_image():
+    pixy.line_get_all_features()
+    pixy.line_get_vectors(1, vectors)
+
+    image = numpy.zeros((51, 51, 1), dtype=numpy.uint8)
+    cv2.line(image, (vectors[0].m_y0,vectors[0].m_x0), (vectors[0].m_y1, vectors[0].m_x1), 256, thickness=5)
+    return image
+
 if __name__ == "__main__":
+    global pixy_sources
     if len(sys.argv) >= 2:
         configFile = sys.argv[1]
 
@@ -180,23 +197,20 @@ if __name__ == "__main__":
 
 
     if server:
-        print("Setting up NetworkTables server")
         ntinst.startServer()
     else:
-        print("Setting up NetworkTables client for team {}".format(team))
         ntinst.startClientTeam(team)
 
     # start cameras
     cameras = []
     for cameraConfig in cameraConfigs:
         cameras.append(startCamera(cameraConfig))
-
-    pixy_capture.initialize()
+    initialize()
     # loop forever
     while True:
-        pixy_source.put_image(pixy_capture.get_pixy_image())
+        image = get_pixy_image()
+        pixy_source.putFrame(image)
     #    sd.putNumber("y0",pixy_capture.vectors[0].m_y0)
     #    sd.putNumber("x0",pixy_capture.vectors[0].m_x0)
     #    sd.putNumber("y1",pixy_capture.vectors[0].m_y1)
     #    sd.putNumber("x1",pixy_capture.vectors[0].m_x1)
-        time.sleep(.01)
