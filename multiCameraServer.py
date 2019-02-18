@@ -6,16 +6,10 @@
 # the project.
 #----------------------------------------------------------------------------
 
-import json
-import time
-import sys
-
+import json, time, sys, cscore, numpy, pixy, cv2
 from cscore import CameraServer, VideoSource, UsbCamera, MjpegServer, CvSource
-import cscore
-import numpy
 from networktables import NetworkTablesInstance, NetworkTables
-import pixy
-import cv2
+
 
 
 #   JSON format:
