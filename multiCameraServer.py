@@ -13,7 +13,7 @@ import sys
 from cscore import CameraServer, VideoSource, UsbCamera, MjpegServer, CvSource
 import cscore
 import numpy
-from networktables import NetworkTablesInstance
+from networktables import NetworkTablesInstance, NetworkTables
 import pixy
 import cv2
 
@@ -150,7 +150,6 @@ def startCamera(config):
     inst = CameraServer.getInstance()
     camera = None
     server = None
-    print(config.pixy)
     if config.pixy:
         global pixy_source
         pixy_source = inst.putVideo("Pixy", 51, 51)
@@ -192,8 +191,8 @@ if __name__ == "__main__":
 
     # start NetworkTables
     ntinst = NetworkTablesInstance.getDefault()
-    #NetworkTables.initialize(server='roborio-4504-frc.local')
-    #sd = NetworkTables.getTable('SmartDashboard')
+    NetworkTables.initialize(server='roborio-4504-frc.local')
+    sd = NetworkTables.getTable('SmartDashboard')
 
 
     if server:
@@ -210,7 +209,8 @@ if __name__ == "__main__":
     while True:
         image = get_pixy_image()
         pixy_source.putFrame(image)
-    #    sd.putNumber("y0",pixy_capture.vectors[0].m_y0)
-    #    sd.putNumber("x0",pixy_capture.vectors[0].m_x0)
-    #    sd.putNumber("y1",pixy_capture.vectors[0].m_y1)
-    #    sd.putNumber("x1",pixy_capture.vectors[0].m_x1)
+        sd.putNumber("y0",vectors[0].m_y0)
+        sd.putNumber("x0",vectors[0].m_x0)
+        sd.putNumber("y1",vectors[0].m_y1)
+        sd.putNumber("x1",vectors[0].m_x1)
+        sd.putNumber("error", ((vectors[0].m_x0 + vectors[0].m_x1)/2) - 36)
