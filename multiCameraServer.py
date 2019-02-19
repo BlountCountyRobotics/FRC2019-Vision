@@ -145,12 +145,11 @@ def startCamera(config):
     camera = None
     server = None
     if config.pixy:
+        #if the camera is a pixy, get a CvSource to put the generated images in
         global pixy_source
         pixy_source = inst.putVideo("Pixy", 51, 51)
-
-        #camera.setConfigJson(json.dumps(config.config))
-        #camera.setConnectionStrategy(VideoSource.ConnectionStrategy.kKeepOpen)
     else:
+        #if the camera is not a pixy, automatically capture it
         camera = UsbCamera(config.name, config.path)
         server = inst.startAutomaticCapture(camera=camera, return_server=True)
 
@@ -163,13 +162,17 @@ def startCamera(config):
     return camera
 
 def initialize():
+    #initiliaze the pixy in the module
     pixy.init()
-    #pixy.change_prog("line")
+    #ensure it is switched to detect the tape on the ground
+    pixy.change_prog("line")
 
 def get_pixy_image():
+    #get the vector and put it to the VectorArray
     pixy.line_get_all_features()
     pixy.line_get_vectors(1, vectors)
 
+    #create a black image and add the line
     image = numpy.zeros((51, 51, 1), dtype=numpy.uint8)
     cv2.line(image, (vectors[0].m_y0,vectors[0].m_x0), (vectors[0].m_y1, vectors[0].m_x1), 256, thickness=5)
     return image
@@ -185,14 +188,14 @@ if __name__ == "__main__":
 
     # start NetworkTables
     ntinst = NetworkTablesInstance.getDefault()
+    ntinst.startClientTeam(team)
+
+
+    #get the SmartDashboard table
     NetworkTables.initialize(server='roborio-4504-frc.local')
     sd = NetworkTables.getTable('SmartDashboard')
 
 
-    if server:
-        ntinst.startServer()
-    else:
-        ntinst.startClientTeam(team)
 
     # start cameras
     cameras = []
@@ -201,10 +204,19 @@ if __name__ == "__main__":
     initialize()
     # loop forever
     while True:
+        #create image from the pixy
         image = get_pixy_image()
+        #put the created image to the cameraserver
         pixy_source.putFrame(image)
+
+        #put useful values abt the vector the SmartDashboard
+        #both for debug and for PID
         sd.putNumber("y0",vectors[0].m_y0)
         sd.putNumber("x0",vectors[0].m_x0)
         sd.putNumber("y1",vectors[0].m_y1)
         sd.putNumber("x1",vectors[0].m_x1)
+
+        #compute the error for PID
+        #error is the midpoint of the line's distance from
+        #the center of the robot's motion
         sd.putNumber("error", ((vectors[0].m_x0 + vectors[0].m_x1)/2) - 36)
