@@ -27,12 +27,7 @@ from networktables import NetworkTablesInstance, NetworkTables
 #               "brightness": <percentage brightness>    // optional
 #               "white balance": <"auto", "hold", value> // optional
 #               "exposure": <"auto", "hold", value>      // optional
-#               "properties": [                          // optional
-#                   {
-#                       "name": <property name>
-#                       "value": <property value>
-#                   }
-#               ],
+#               "pixy": <is cam pixy> 
 #               "stream": {                              // optional
 #                   "properties": [
 #                       {
