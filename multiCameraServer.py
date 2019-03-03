@@ -10,7 +10,23 @@ import json, time, sys, cscore, numpy, pixy, cv2
 from cscore import CameraServer, VideoSource, UsbCamera, MjpegServer, CvSource
 from networktables import NetworkTablesInstance, NetworkTables
 
+#-------------------------------------------------------------------------------------
 
+#____________/\\\______/\\\\\\\\\\\\\\\______/\\\\\\\_______________/\\\____
+# __________/\\\\\_____\/\\\///////////_____/\\\/////\\\___________/\\\\\____
+#  ________/\\\/\\\_____\/\\\_______________/\\\____\//\\\________/\\\/\\\____
+#   ______/\\\/\/\\\_____\/\\\\\\\\\\\\_____\/\\\_____\/\\\______/\\\/\/\\\____
+#    ____/\\\/__\/\\\_____\////////////\\\___\/\\\_____\/\\\____/\\\/__\/\\\____
+#     __/\\\\\\\\\\\\\\\\_____________\//\\\__\/\\\_____\/\\\__/\\\\\\\\\\\\\\\\_
+#      _\///////////\\\//___/\\\________\/\\\__\//\\\____/\\\__\///////////\\\//__
+#       ___________\/\\\____\//\\\\\\\\\\\\\/____\///\\\\\\\/_____________\/\\\____
+#        ___________\///______\/////////////________\///////_______________\///_____
+# Welcome to Team 4504's offboard vision code the raspberry pi.
+
+# Contributors:
+# porgull/Connor Barker
+
+#-------------------------------------------------------------------------------------
 
 #   JSON format:
 #   {
@@ -27,7 +43,7 @@ from networktables import NetworkTablesInstance, NetworkTables
 #               "brightness": <percentage brightness>    // optional
 #               "white balance": <"auto", "hold", value> // optional
 #               "exposure": <"auto", "hold", value>      // optional
-#               "pixy": <is cam pixy> 
+#               "pixy": <is cam pixy>
 #               "stream": {                              // optional
 #                   "properties": [
 #                       {
@@ -39,6 +55,10 @@ from networktables import NetworkTablesInstance, NetworkTables
 #           }
 #       ]
 #   }
+
+#-------------------------------------------------------------------------------------
+
+# MOST CODE IS UNEDITED FROM THE EXAMPLE:
 
 configFile = "/boot/frc.json"
 
@@ -73,6 +93,8 @@ def readCameraConfig(config):
         parseError("camera '{}': could not read path".format(cam.name))
         return False
 
+
+    #ADDED CODE: add pixy as a camera property
     try:
         cam.pixy = config["pixy"]
     except KeyError:
@@ -139,6 +161,9 @@ def startCamera(config):
     inst = CameraServer.getInstance()
     camera = None
     server = None
+
+
+    #ADDED CODE: handle pixy camera capture by creating a cvsource, otherwise normal
     if config.pixy:
         #if the camera is a pixy, get a CvSource to put the generated images in
         global pixy_source
@@ -156,6 +181,9 @@ def startCamera(config):
 
     return camera
 
+#-------------------------------------------------------------------------------------
+#ADDED CODE: Initialize and generate pixy images
+
 def initialize():
     #initiliaze the pixy in the module
     pixy.init()
@@ -172,6 +200,8 @@ def get_pixy_image():
     cv2.line(image, (vectors[0].m_y0,vectors[0].m_x0), (vectors[0].m_y1, vectors[0].m_x1), 256, thickness=5)
     return image
 
+#-------------------------------------------------------------------------------------
+
 if __name__ == "__main__":
     global pixy_sources
     if len(sys.argv) >= 2:
@@ -185,20 +215,23 @@ if __name__ == "__main__":
     ntinst = NetworkTablesInstance.getDefault()
     ntinst.startClientTeam(team)
 
-
+    #ADDED: get the SmartDashboard to output to automatically
     #get the SmartDashboard table
     NetworkTables.initialize(server='roborio-4504-frc.local')
     sd = NetworkTables.getTable('SmartDashboard')
-
-
-
+    W
     # start cameras
     cameras = []
     for cameraConfig in cameraConfigs:
         cameras.append(startCamera(cameraConfig))
+
+    #initialize the pixy camera
     initialize()
+
     # loop forever
     while True:
+        #ADDED CODE: in the loop, continually get and output values
+
         #create image from the pixy
         image = get_pixy_image()
         #put the created image to the cameraserver
